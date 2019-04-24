@@ -1,9 +1,6 @@
 import nltk
 import re
 import math
-from nltk.stem import SnowballStemmer
-from nltk.stem import PorterStemmer
-from nltk.tokenize import word_tokenize
 import os
 import time
 from selenium import webdriver
@@ -82,7 +79,7 @@ def tally_scan(m_tally):
 
 if __name__ == '__main__':
     #full corpus with german & english
-    x = open("sido_full.txt", encoding="utf-8")
+    x = open("d:\carl\sido_full.txt", encoding="utf-8")
     text = x.read()
     split_text = re.findall(r'\w+', text)
     #split the initial word tally into different processes. 50k words each.
@@ -97,4 +94,4 @@ if __name__ == '__main__':
     for t in tally_dict:
         t = Process(target = word_tally, args=(tally_dict[t],))
         t.start()
-
+    x.close()
