@@ -97,9 +97,4 @@ if __name__ == '__main__':
     for t in tally_dict:
         t = Process(target = word_tally, args=(tally_dict[t],))
         t.start()
-'''if __name__ == '__main__':
-        t1 = Process(target = run_drive, args=(part_one,))
-        t2 = Process(target = run_drive, args=(part_two,))
-        t1.start()
-        t2.start()    '''
 
