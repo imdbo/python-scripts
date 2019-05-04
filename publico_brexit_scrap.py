@@ -7,7 +7,6 @@ from selenium.webdriver.firefox.options import Options
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException
 import math
-import re
 from multiprocessing import Process
 
 def load_search():
