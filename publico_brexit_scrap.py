@@ -6,8 +6,8 @@ from selenium.webdriver.firefox.options import Options
 #from selenium.webdriver.support.ui import Select
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException
-import re
 import math
+import re
 from multiprocessing import Process
 
 def load_search():
@@ -21,7 +21,7 @@ def load_search():
             pass
             print("searching for articles with the word "+ word + 'in https://www.elperiodico.com/es/buscador?size=15&query='+ word + '&rt=ZetaNews&video=false&order=score')
     #hide element obscuring website
-    while True:
+    while True: 
         try:   
             time.sleep(0.5)
             driver.find_element_by_class_name("qc-cmp-button").click()
@@ -41,7 +41,6 @@ def load_articles():
 
 def get_and_find_words(l):
     url = l
-    print(l)
     r = requests.get(url)
     soup = BeautifulSoup(r.text, 'html.parser')
     title = soup.find("h1", {"class": "title"})
@@ -49,13 +48,12 @@ def get_and_find_words(l):
     article_text = article.findAll('p')
     for p in article_text:
         with open('corpus.txt', 'a+', encoding="utf-8") as c:
-            print('writing text')
             if len(p.text) != 0 and p.text not in c:
                 c.write(title.text)
                 c.write(p.text)
             else:
                 pass
-    time.sleep(0.5)
+    time.sleep(1)
 
 def link_read(links_p):
     for l in links_p:
@@ -65,7 +63,7 @@ def link_read(links_p):
 if __name__ == '__main__':
         
     firefox_options = Options()
-    firefox_options.add_argument("")
+    firefox_options.add_argument("--headless")
     #path for the web driver
     driver = webdriver.Firefox(executable_path='d:/carl/geckodriver.exe', options=firefox_options)
     driver.set_window_size(1920, 1080)
@@ -83,9 +81,7 @@ if __name__ == '__main__':
                     print('loading more articles')
                     load_more = load_more-1
                 except: 
-                    break
-            else:
-                break
+                    pass
                 
     articles = load_articles()
     list_links = []
@@ -120,4 +116,3 @@ if __name__ == '__main__':
     for t in range(link_tally):
         t = Process(target = link_read, args=(links_p[t],))
         t.start()
-
