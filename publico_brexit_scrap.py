@@ -7,14 +7,8 @@ from selenium.webdriver.firefox.options import Options
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException
 import re
-
-firefox_options = Options()
-firefox_options.add_argument("--headless")
-#path for the web driver
-driver = webdriver.Firefox(executable_path='c:/SCRAP/geckodriver.exe', options=firefox_options)
-driver.set_window_size(1920, 1080)
-word = 'brexit'
-p_in_text = []
+import math
+from multiprocessing import Process
 
 def load_search():
     while True:
@@ -53,58 +47,77 @@ def get_and_find_words(l):
     title = soup.find("h1", {"class": "title"})
     article = soup.find("div", {"class": "ep-detail-body"})
     article_text = article.findAll('p')
-    print(title.text)
     for p in article_text:
-        print(p.text)
         with open('corpus.txt', 'a+', encoding="utf-8") as c:
             print('writing text')
             if len(p.text) != 0 and p.text not in c:
+                c.write(title.text)
                 c.write(p.text)
             else:
                 pass
-
-load_search()
-load_more = 100
-while True:
-        if load_more > 1:
-            try:
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);") 
-                cargarmas = driver.find_element_by_class_name("cargarmas")
-                cargarmas.click()
-                cargarmas.click()
-                print('loading more articles')
-                load_more = load_more-1
-            except: 
-                break
-        else:
-            break
-            
-articles = load_articles()
-list_links = []
-for a in range(len(articles)):
-    print(len(articles))
-    print(a)
-    print(articles[a])
-    try:
-        link = articles[a].find_element_by_css_selector('a').get_attribute('href')
-        list_links.append(link)
-        print(len(list_links))
-    except:
-        pass
-scraped_links =  0
-for l in (list_links):
-    #avoid race condition marionette ?
-    driver.get(l)
-    get_and_find_words(l)
-    scraped_links = scraped_links+1
     time.sleep(0.5)
 
-driver.quit()
+def link_read(links_p):
+    for l in links_p:
+        get_and_find_words(l)
+        time.sleep(0.5)
 
-#regex cleanup /// 
-pattern = r"([\/]){1}[\s]+[\w]+([áéíóúÁÉÍÓÚ])?(([^\v][\w]+)?([^\v][\w]+)+([\s][\(][\w]+[\)])?)?"
-with open('test.txt', 'r+', encoding="utf-8") as c:
-    text =  c.read()
-    final_text = re.sub(pattern, '', text)
-    with open('final_text.txt', 'w+', encoding="utf-8") as f:
-        f.write(final_text)
+if __name__ == '__main__':
+        
+    firefox_options = Options()
+    firefox_options.add_argument("")
+    #path for the web driver
+    driver = webdriver.Firefox(executable_path='d:/carl/geckodriver.exe', options=firefox_options)
+    driver.set_window_size(1920, 1080)
+    word = 'brexit'
+    p_in_text = []
+    load_search()
+    load_more = 100
+    while True:
+            if load_more > 1:
+                try:
+                    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);") 
+                    cargarmas = driver.find_element_by_class_name("cargarmas")
+                    cargarmas.click()
+                    cargarmas.click()
+                    print('loading more articles')
+                    load_more = load_more-1
+                except: 
+                    break
+            else:
+                break
+                
+    articles = load_articles()
+    list_links = []
+    for a in range(len(articles)):
+        print(len(articles))
+        print(a)
+        print(articles[a])
+        try:
+            link = articles[a].find_element_by_css_selector('a').get_attribute('href')
+            list_links.append(link)
+            print(len(list_links))
+        except:
+            pass
+
+    driver.quit()
+
+    def tally_split(link_tally):
+        links_p = []
+        tally_ls = math.floor(len(list_links)/link_tally)
+        for l in range(link_tally):
+            links_p.append(list_links[:tally_ls])
+            del list_links[0:tally_ls]
+        return links_p
+
+    link_tally = math.floor(len(list_links)/6)
+    if link_tally < 1 and len(list_links) != 0:
+        link_tally = 1
+        links_p = tally_split(link_tally)
+    elif link_tally > 1:
+        links_p = tally_split(link_tally)
+            
+    for t in range(link_tally):
+        t = Process(target = link_read, args=(links_p[t],))
+        t.start()
+
