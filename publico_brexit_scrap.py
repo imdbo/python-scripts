@@ -7,6 +7,7 @@ from selenium.webdriver.firefox.options import Options
 from bs4 import BeautifulSoup
 from selenium.common.exceptions import NoSuchElementException
 import math
+import re
 from multiprocessing import Process
 
 def load_search():
@@ -46,12 +47,13 @@ def get_and_find_words(l):
     article = soup.find("div", {"class": "ep-detail-body"})
     article_text = article.findAll('p')
     for p in article_text:
-        with open('corpus.txt', 'a+', encoding="utf-8") as c:
-            if len(p.text) != 0 and p.text not in c:
-                c.write(title.text)
-                c.write(p.text)
-            else:
-                pass
+        try:
+            with open('corpus.txt', 'a+') as c:
+                if len(p.text) != 0 and p.text not in c:
+                    c.write(title.text)
+                    c.write(p.text)
+        except:
+            pass
     time.sleep(1)
 
 def link_read(links_p):
@@ -80,7 +82,9 @@ if __name__ == '__main__':
                     print('loading more articles')
                     load_more = load_more-1
                 except: 
-                    pass
+                    break
+            else:
+                break
                 
     articles = load_articles()
     list_links = []
@@ -105,7 +109,7 @@ if __name__ == '__main__':
             del list_links[0:tally_ls]
         return links_p
 
-    link_tally = math.floor(len(list_links)/6)
+    link_tally = math.floor(len(list_links)/5)
     if link_tally < 1 and len(list_links) != 0:
         link_tally = 1
         links_p = tally_split(link_tally)
