@@ -39,26 +39,29 @@ def load_articles():
             pass
     return articles
 
-def get_and_find_words(l):
-    url = l
+def get_and_find_words(link,l,t):
+    url = link
     r = requests.get(url)
     soup = BeautifulSoup(r.text, 'html.parser')
     title = soup.find("h1", {"class": "title"})
     article = soup.find("div", {"class": "ep-detail-body"})
     article_text = article.findAll('p')
-    for p in article_text:
-        try:
-            with open('corpus.txt', 'a+') as c:
-                if len(p.text) != 0 and p.text not in c:
-                    c.write(title.text)
-                    c.write(p.text)
-        except:
-            pass
+    with open('corpus.txt', 'a+') as c:
+        c.write("[[" + str(t) + "--" + str(l) + "]]")
+        c.write(title.text+"\n")
+        for p in article_text:
+            try:
+                    if len(p.text) != 0 and p.text not in c:
+                        c.write(p.text)
+                        c.write("source: "+str(url))
+            except:
+                pass
     time.sleep(1)
 
-def link_read(links_p):
-    for l in links_p:
-        get_and_find_words(l)
+def link_read(links_p, t):
+    for l in range(len(links_p)):
+        print(links_p[l])
+        get_and_find_words(links_p[l],l,t)
         time.sleep(0.5)
 
 if __name__ == '__main__':
@@ -117,5 +120,5 @@ if __name__ == '__main__':
         links_p = tally_split(link_tally)
             
     for t in range(link_tally):
-        t = Process(target = link_read, args=(links_p[t],))
+        t = Process(target = link_read, args=(links_p[t],t))
         t.start()
