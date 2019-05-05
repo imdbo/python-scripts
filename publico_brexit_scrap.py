@@ -48,14 +48,16 @@ def get_and_find_words(link,l,t):
     article_text = article.findAll('p')
     with open('corpus.txt', 'a+') as c:
         c.write("[[" + str(t) + "--" + str(l) + "]]")
-        c.write(title.text+"\n")
+        c.write("\n")
+        c.write(title.text)
+        c.write("\n")
         for p in article_text:
             try:
                     if len(p.text) != 0 and p.text not in c:
                         c.write(p.text)
-                        c.write("source: "+str(url))
             except:
                 pass
+        c.write("\n link: "+str(url))
     time.sleep(1)
 
 def link_read(links_p, t):
