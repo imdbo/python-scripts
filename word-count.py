@@ -70,7 +70,6 @@ while True:
                     row = 0
                     pairing = 0
                     coll_list = []
-                    #lol what is a tuple
                     for v in collocation_dict[word]:
                         for vl in v:
                             for e in v[vl]:
